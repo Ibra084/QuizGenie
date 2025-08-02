@@ -1,6 +1,13 @@
-# .gitignore
+# Python
 __pycache__/
+*.pyc
 .env
+instance/
+
+# Node
 node_modules/
-build/
 dist/
+build/
+
+# Others
+.DS_Store
