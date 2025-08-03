@@ -74,26 +74,31 @@ const MyQuizzes = () => {
         // Transform the data to match our frontend expectations
         const createdQuizzes = response.data.user.createdQuizzes?.map(quiz => ({
           ...quiz,
-          questionCount: quiz.questions ? quiz.questions.length : 0,
+          questionCount: quiz.questions ? quiz.questions.length : quiz.questionCount || 0,
           createdAt: quiz.created_at || quiz.createdAt,
-          participants: quiz.attempts ? quiz.attempts.map(attempt => ({
-            username: attempt.user?.username || 'Anonymous',
-            score: attempt.score,
-            completedAt: attempt.completed_at,
-            timeSpent: attempt.time_spent
-          })) : []
+          participants: quiz.participants?.map(participant => ({
+            username: participant.username || participant.user?.username || 'Anonymous',
+            score: participant.score,
+            completedAt: participant.completed_at || participant.completedAt,
+            timeSpent: participant.time_spent || participant.timeSpent
+          })) || []
         })) || [];
 
+        // Map taken quizzes using the structure returned by the API
         const takenQuizzes = response.data.user.takenQuizzes?.map(attempt => ({
+          // quiz_id represents the actual quiz identifier, used for navigation
           id: attempt.quiz_id,
-          title: attempt.quiz?.title || 'Deleted Quiz',
-          creator: attempt.quiz?.user?.username || 'System',
+          // The API returns quiz details at the top level (title, creator, etc.)
+          // so we access them directly rather than through a nested quiz object
+          title: attempt.title || 'Deleted Quiz',
+          creator: attempt.creator || 'System',
           score: attempt.score,
           completedAt: attempt.completed_at,
           timeSpent: attempt.time_spent,
-          rating: attempt.quiz?.rating || 0,
-          category: attempt.quiz?.category,
-          difficulty: attempt.quiz?.difficulty
+          rating: attempt.rating || 0,
+          category: attempt.category,
+          difficulty: attempt.difficulty,
+          totalQuestions: attempt.total_questions || attempt.questions?.length || 0
         })) || [];
         
 
@@ -506,26 +511,31 @@ const filteredQuizzes = currentQuizzes
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{quiz.title}</h3>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{quiz.difficulty}</span>
-                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{quiz.category}</span>
+                  <div className="space-y-3">
+                    <div className="text-gray-500 text-sm">
+                      by <span className="font-medium text-gray-700">{quiz.creator}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <Trophy className="h-4 w-4 text-green-600" />
+                        <span className="font-medium">{quiz.score}%</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <BookOpen className="h-4 w-4" />
+                        <span>{quiz.totalQuestions} questions</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{quiz.completedAt ? new Date(quiz.completedAt).toLocaleDateString() : '--'}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{quiz.timeSpent || '--:--'}</span>
                       </div>
                     </div>
-                    <div className="text-gray-500 text-sm mb-1">
-                      by <span className="font-medium">{quiz.creator}</span>
-                    </div>
-                    <div className="flex gap-4 text-sm text-gray-600 mb-2">
-                      <span>Score: <span className="font-bold text-green-600">{quiz.score}%</span></span>
-                      <span>Questions: {quiz.total_questions}</span>
-                      <span>Date: {quiz.completed_at ? new Date(quiz.completed_at).toLocaleDateString() : '--'}</span>
-                      <span>Time: {quiz.time_spent || '--:--'}</span>
-                    </div>
                     <button
-                      onClick={() => navigate(`/quiz/${quiz.quiz_id}`)}
-                      className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+                      onClick={(e) => { e.stopPropagation(); navigate(`/quiz/${quiz.id}`); }}
+                      className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
                     >
                       View Quiz
                     </button>
