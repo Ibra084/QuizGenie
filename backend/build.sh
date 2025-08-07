@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
-# Exit on error
 set -o errexit
 
-# Modify this line if you need to change the Python version
-PYTHON_VERSION=$(cat runtime.txt | cut -d '-' -f 2)
+# Explicitly install Python 3.12
+pyenv install 3.12.8 -s
+pyenv global 3.12.8
 
-# Install the correct Python version
-pyenv install $PYTHON_VERSION -s
-pyenv global $PYTHON_VERSION
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate
 
-# Install dependencies
+# Install requirements
+pip install --upgrade pip
 pip install -r requirements.txt
