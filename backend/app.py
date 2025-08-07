@@ -124,9 +124,32 @@ class QuizAttempt(db.Model):
         return f'<QuizAttempt {self.id} - User {self.user_id} - Quiz {self.quiz_id}>'
 
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+# ---------------------------------------------------------------------------
+# 1) Runs ONCE when each Gunicorn worker starts (before it serves requests)
+# ---------------------------------------------------------------------------
+@app.before_serving               # <— replaces @app.before_first_request
+def initialise():
+    """Create tables & seed initial data right before the worker begins."""
+    with app.app_context():       # safe even inside the hook
+        db.create_all()           # create tables if they don't exist
+        seed_database()           # any custom seeding logic
+
+def seed_database():
+    """Example seeding function — tweak to your needs."""
+    from models import User       # import inside function to avoid circular deps
+
+    if not User.query.first():    # only seed if DB is empty
+        admin = User(username="admin", email="admin@example.com")
+        db.session.add(admin)
+        db.session.commit()
+
+# ---------------------------------------------------------------------------
+# 2) (Optional) Runs when the worker is shutting down
+# ---------------------------------------------------------------------------
+@app.after_serving
+def shutdown():
+    """Clean-up tasks after the worker stops accepting requests."""
+    db.session.remove()           # close DB session, release connections
 
 
 @app.route('/verify-token', methods=['GET'])
