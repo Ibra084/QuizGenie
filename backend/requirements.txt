@@ -6,7 +6,7 @@ Flask-Migrate==4.0.5
 python-dotenv==1.0.0
 
 # Database
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.30
 psycopg2-binary==2.9.9  # For PostgreSQL
 # or for MySQL:
 # mysqlclient==2.2.1
