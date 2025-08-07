@@ -11,7 +11,7 @@ import jwt
 from functools import wraps
 import json
 from flask_migrate import Migrate
-from sqlalchemy import func
+from sqlalchemy import func, desc
 
 
 load_dotenv(dotenv_path="./.env")
@@ -659,10 +659,10 @@ def get_user_data(current_user):
                         'score': attempt.score,
                         'completed_at': attempt.completed_at.isoformat() if attempt.completed_at else None,
                         'completedAt': attempt.completed_at.isoformat() if attempt.completed_at else None,
-                        'time_spent': attempt.time_spent,
                         'timeSpent': attempt.time_spent,
                         'correct_answers': attempt.correct_answers,
                         'total_questions': attempt.total_questions
+                        
                     }
                     participants.append(participant_data)
                     total_score_sum += attempt.score
@@ -697,14 +697,14 @@ def get_user_data(current_user):
                     'created_at': quiz.created_at.isoformat(),
                     'createdAt': quiz.created_at.isoformat(),
                     'questions': question_count,
-                    'questionCount': question_count,
-                    'participants': participants,
+                    'recent_attempts': participants,  # <-- UPDATE THIS LINE
                     'averageScore': round(average_score, 1),
                     'totalAttempts': len(participants),
                     'tags': [tag.name for tag in quiz.tags] if quiz.tags else [],
                     'is_public': quiz.is_public,
                     'quiz_type': quiz.quiz_type
                 }
+
                 created_quizzes.append(created_quiz_data)
                 
         except Exception as e:
@@ -741,14 +741,14 @@ def get_user_data(current_user):
                         'question_count': question_count,
                         'score': attempt.score,
                         'correct_answers': attempt.correct_answers,
-                        'total_questions': attempt.total_questions,
+                        'questions': attempt.total_questions,
                         'completed_at': attempt.completed_at.isoformat(),
                         'time_spent': attempt.time_spent,
                         'rating': quiz.rating,
                         'plays': quiz.plays,
                         'created_at': quiz.created_at.isoformat(),
                         'quiz_type': quiz.quiz_type,
-                        'tags': [tag.name for tag in quiz.tags] if quiz.tags else []
+                        'tags': [tag.name for tag in quiz.tags] if quiz.tags else [],
                     }
                     taken_quizzes.append(taken_quiz_data)
                     
@@ -1256,81 +1256,49 @@ def get_created_quizzes(current_user):
             'error': str(e)
         }), 500
 
-@app.route('/api/quizzes/<quiz_id>', methods=['PUT'])
+@app.route('/api/quizzes/<quiz_id>', methods=['PUT', 'GET'])
 @token_required
-def update_quiz(current_user, quiz_id):
-    """Update quiz details"""
-    try:
-        data = request.json
-        quiz = Quiz.query.filter_by(id=quiz_id, user_id=current_user.id).first()
-        
-        if not quiz:
-            return jsonify({'success': False, 'error': 'Quiz not found'}), 404
-        
-        # Update basic fields
-        if 'title' in data:
-            quiz.title = data['title']
-        if 'description' in data:
-            quiz.description = data['description']
-        if 'difficulty' in data:
-            quiz.difficulty = data['difficulty']
-        if 'is_public' in data:
-            quiz.is_public = data['is_public']
-        
-        # Update tags
-        if 'tags' in data:
-            quiz.tags = []
-            for tag_name in data['tags']:
-                tag = Tag.query.filter_by(name=tag_name.lower()).first()
-                if not tag:
-                    tag = Tag(name=tag_name.lower())
-                    db.session.add(tag)
-                quiz.tags.append(tag)
-        
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'quiz': {
-                'id': quiz.id,
-                'title': quiz.title,
-                'description': quiz.description
-            }
-        })
-    
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+def edit_quiz(current_user, quiz_id):
+    quiz = Quiz.query.filter_by(id=quiz_id, user_id=current_user.id).first()
+    if not quiz:
+        return jsonify({'success': False, 'error': 'Quiz not found'}), 404
 
-@app.route('/api/quizzes/<quiz_id>', methods=['DELETE'])
-@token_required
-def delete_quiz(current_user, quiz_id):
-    """Delete a quiz and all its attempts"""
-    try:
-        quiz = Quiz.query.filter_by(id=quiz_id, user_id=current_user.id).first()
-        
-        if not quiz:
-            return jsonify({'success': False, 'error': 'Quiz not found'}), 404
-        
-        # Delete all attempts first
-        QuizAttempt.query.filter_by(quiz_id=quiz_id).delete()
-        
-        # Then delete the quiz
-        db.session.delete(quiz)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'message': 'Quiz deleted successfully'
-        })
-    
-    except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+    if request.method == 'GET':
+        quiz_dict = quiz.to_dict()
+        try:
+            quiz_dict['quiz_content'] = json.loads(quiz_dict['quiz_content']) if isinstance(quiz_dict['quiz_content'], str) else quiz_dict['quiz_content']
+        except Exception:
+            quiz_dict['quiz_content'] = []
+        return jsonify({'success': True, 'quiz': quiz_dict})
+
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            print(f"Updating quiz {quiz_id}: {data}")
+
+            quiz.title = data.get('title', quiz.title)
+            quiz.description = data.get('description', quiz.description)
+            quiz.difficulty = data.get('difficulty', quiz.difficulty)
+            quiz.is_public = data.get('is_public', quiz.is_public)
+            quiz.quiz_content = json.dumps(data.get('quiz_content', []))  # 👈🏽 Important!
+
+            # Handle tags
+            if 'tags' in data:
+                quiz.tags.clear()
+                for tag_name in data['tags']:
+                    tag = Tag.query.filter_by(name=tag_name).first()
+                    if not tag:
+                        tag = Tag(name=tag_name)
+                        db.session.add(tag)
+                    quiz.tags.append(tag)
+
+            db.session.commit()  # 👈🏽 This is what actually saves it
+            print("PUT received for quiz:", quiz_id)
+            return jsonify({'success': True, 'quiz': quiz.to_dict()})
+        except Exception as e:
+            print("Save failed:", str(e))
+            return jsonify({'success': False, 'error': 'Save failed', 'details': str(e)}), 500
+
 
 @app.route('/quizzes/all', methods=['GET'])
 @token_required
@@ -1428,15 +1396,61 @@ def get_taken_quizzes(current_user):
                 'completedAt': attempt.completed_at.isoformat(),
                 'timeSpent': attempt.time_spent,
                 'rating': quiz.rating,
-                'myRating': attempt.user_rating  # Assuming you have this field
+                'myRating': attempt.user_rating,  # Assuming you have this field
+                'questions': attempt.total_questions
             })
         
         return jsonify(taken_quizzes)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/quiz-analytics/<quiz_id>', methods=['GET'])
+@token_required
+def quiz_analytics(current_user, quiz_id):
+
+    quiz = Quiz.query.filter_by(id=quiz_id, user_id=current_user.id).first()
+    if not quiz:
+        return jsonify({'success': False, 'error': 'Quiz not found'}), 404
+
+    attempts = QuizAttempt.query.filter_by(quiz_id=quiz.id).order_by(desc(QuizAttempt.completed_at)).all()
+    total_attempts = len(attempts)
+    avg_score = round(sum(a.score for a in attempts) / total_attempts, 1) if attempts else 0
+
+    recent_attempts = [{
+        'username': a.user.username if a.user else 'Anonymous',
+        'score': a.score,
+        'timeSpent': a.time_spent,
+        'completedAt': a.completed_at.isoformat() if a.completed_at else None
+    } for a in attempts[:10]]
+
+    top_performers = sorted(attempts, key=lambda x: x.score, reverse=True)[:5]
+    leaderboard = [{
+        'username': a.user.username if a.user else 'Anonymous',
+        'score': a.score,
+        'completedAt': a.completed_at.isoformat() if a.completed_at else None
+    } for a in top_performers]
+
+    return jsonify({
+        'success': True,
+        'quiz': {
+            'id': quiz.id,
+            'title': quiz.title,
+            'description': quiz.description,
+            'difficulty': quiz.difficulty or 'Medium',
+            'category': quiz.tags[0].name if quiz.tags else 'General',
+            'created_at': quiz.created_at.isoformat(),
+            'questionCount': len(json.loads(quiz.quiz_content)) if quiz.quiz_content else 0,
+            'tags': [tag.name for tag in quiz.tags],
+        },
+        'totalAttempts': total_attempts,
+        'averageScore': avg_score,
+        'recent_attempts': recent_attempts,
+        'leaderboard': leaderboard
+    })
+
 
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host="0.0.0.0", port="5000")
+    app.run(debug=False, host="0.0.0.0", port="5000")

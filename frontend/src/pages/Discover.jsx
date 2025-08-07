@@ -2,6 +2,7 @@ import { Search, Star, Clock, BookOpen, Filter, ChevronDown, Loader2, AlertCircl
 import { useState, useEffect, useRef, useCallback } from 'react';
 import QuizCard from '../components/QuizCard'; // You'll need to create this component
 import axios from 'axios';
+import { BACKEND_ROUTE } from '../context/api';
 
 const DiscoverQuizzes = () => {
   const [selectedTags, setSelectedTags] = useState([]);
@@ -24,7 +25,7 @@ const DiscoverQuizzes = () => {
   // Memoize the fetch function to prevent unnecessary re-renders
   const fetchQuizzes = useCallback(async (search, category, difficulty, sort, signal) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/quizzes', {
+      const response = await axios.get(`${BACKEND_ROUTE}/api/quizzes`, {
         params: {
           search: search,
           category: category === 'all' ? '' : category,

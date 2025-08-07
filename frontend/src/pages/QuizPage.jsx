@@ -5,6 +5,7 @@ import axios from 'axios';
 import QuizView from '../components/QuizView';
 import ResultsView from '../components/ResultsView';
 import { BookOpen, Loader2, AlertCircle, Clock, User, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { BACKEND_ROUTE } from '../context/api';
 
 const QuizPage = () => {
   const [submitting, setSubmitting] = useState(false);
@@ -20,7 +21,7 @@ const QuizPage = () => {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/quiz/${quizId}`);
+        const response = await axios.get(`${BACKEND_ROUTE}/quiz/${quizId}`);
         setQuiz(response.data);
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to load quiz');
@@ -45,7 +46,7 @@ const QuizPage = () => {
   const submitQuiz = async () => {
     try {
       setSubmitting(true); // Use submitting instead of loading
-      const response = await axios.post('http://localhost:5000/submit-quiz', {
+      const response = await axios.post(`${BACKEND_ROUTE}/submit-quiz`, {
         quiz_id: quizId,
         answers
       });

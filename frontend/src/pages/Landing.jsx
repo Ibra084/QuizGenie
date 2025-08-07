@@ -448,7 +448,7 @@ const LandingPage = () => {
           
           <div className="border-t border-gray-800 mt-12 pt-8 text-center">
             <p className="text-gray-400">
-              © 2024 QuizGenie. All rights reserved. Made with ❤️ for learners worldwide.
+              2025 QuizGenie. Created by Ibrahim Rahman
             </p>
           </div>
         </div>

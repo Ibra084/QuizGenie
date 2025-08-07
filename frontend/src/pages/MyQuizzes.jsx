@@ -85,15 +85,24 @@ const MyQuizzes = () => {
         })) || [];
 
         const takenQuizzes = response.data.user.takenQuizzes?.map(attempt => ({
+          // quiz_id represents the actual quiz identifier, used for navigation
           id: attempt.quiz_id,
           title: attempt.quiz?.title || 'Deleted Quiz',
           creator: attempt.quiz?.user?.username || 'System',
+          // The API returns quiz details at the top level (title, creator, etc.)
+          // so we access them directly rather than through a nested quiz object
+          title: attempt.title || 'Deleted Quiz',
+          creator: attempt.creator || 'System',
           score: attempt.score,
           completedAt: attempt.completed_at,
           timeSpent: attempt.time_spent,
           rating: attempt.quiz?.rating || 0,
           category: attempt.quiz?.category,
-          difficulty: attempt.quiz?.difficulty
+          difficulty: attempt.quiz?.difficulty,
+          rating: attempt.rating || 0,
+          category: attempt.category,
+          difficulty: attempt.difficulty,
+          questions: attempt.questions
         })) || [];
         
 
@@ -227,6 +236,9 @@ const filteredQuizzes = currentQuizzes
   const endIndex = startIndex + itemsPerPage;
   const currentPageQuizzes = filteredQuizzes.slice(startIndex, endIndex);
 
+  console.log(currentPageQuizzes)
+  
+
   const resetFilters = () => {
     setSearchQuery('');
     setCategoryFilter('all');
@@ -301,7 +313,7 @@ const filteredQuizzes = currentQuizzes
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-gray-400" />
+              {/* <Search className="h-5 w-5 text-gray-400" /> */}
             </div>
             <input
               type="text"
@@ -467,8 +479,11 @@ const filteredQuizzes = currentQuizzes
                       </div>
                       <div className="flex items-center space-x-1 text-gray-500">
                         <BookOpen className="h-4 w-4" />
-                        <span className="text-sm">{quiz.questionCount || quiz.questions?.length || 0} questions</span>
+                        <span className="text-sm">
+                          {quiz.questions || 0} questions
+                        </span>
                       </div>
+
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t">
                       <span className="text-sm text-gray-500">
@@ -506,26 +521,31 @@ const filteredQuizzes = currentQuizzes
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{quiz.title}</h3>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{quiz.difficulty}</span>
-                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">{quiz.category}</span>
+                  <div className="space-y-3">
+                    <div className="text-gray-500 text-sm">
+                      by <span className="font-medium text-gray-700">{quiz.creator}</span>
+                    </div><div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <Trophy className="h-4 w-4 text-green-600" />
+                        <span className="font-medium">{quiz.score}%</span>
                       </div>
+                      <div className="flex items-center space-x-1">
+                        <BookOpen className="h-4 w-4" />
+                        <span className="text-sm">
+                          {quiz.questions || 0} questions
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{quiz.completedAt ? new Date(quiz.completedAt).toLocaleDateString() : '--'}</span>
+                      </div>
+                      {/* <div className="flex items-center space-x-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{quiz.timeSpent || '--:--'}</span>
+                      </div> */}
                     </div>
-                    <div className="text-gray-500 text-sm mb-1">
-                      by <span className="font-medium">{quiz.creator}</span>
-                    </div>
-                    <div className="flex gap-4 text-sm text-gray-600 mb-2">
-                      <span>Score: <span className="font-bold text-green-600">{quiz.score}%</span></span>
-                      <span>Questions: {quiz.total_questions}</span>
-                      <span>Date: {quiz.completed_at ? new Date(quiz.completed_at).toLocaleDateString() : '--'}</span>
-                      <span>Time: {quiz.time_spent || '--:--'}</span>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/quiz/${quiz.quiz_id}`)}
-                      className="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
+                    <button onClick={(e) => { e.stopPropagation(); navigate(`/quiz/${quiz.id}`); }}
+                      className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium"
                     >
                       View Quiz
                     </button>
@@ -651,6 +671,9 @@ const filteredQuizzes = currentQuizzes
                   Created {new Date(selectedQuiz.createdAt || selectedQuiz.created_at).toLocaleDateString()}
                 </span>
               </div>
+              {/* <pre>{JSON.stringify(selectedQuiz, null, 2)}</pre> */}
+              
+
             </div>
             
             <div className="p-6">
@@ -660,9 +683,12 @@ const filteredQuizzes = currentQuizzes
                   <div className="text-sm text-gray-600">Total Plays</div>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">{selectedQuiz.questionCount || (selectedQuiz.questions ? selectedQuiz.questions.length : 0)}</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {selectedQuiz.questions || 0}
+                  </div>
                   <div className="text-sm text-gray-600">Questions</div>
                 </div>
+
                 <div className="bg-gray-50 rounded-lg p-4 text-center">
                   <div className="text-2xl font-bold text-yellow-600">{selectedQuiz.rating?.toFixed(1) || '0.0'}</div>
                   <div className="text-sm text-gray-600">Rating</div>
@@ -686,38 +712,30 @@ const filteredQuizzes = currentQuizzes
                 </button>
               </div>
               
-              <div className="space-y-3 max-h-64 overflow-y-auto">
-                {selectedQuiz.participants?.slice(0, 5).map((participant, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium">
-                        {participant.username?.[0]?.toUpperCase() || 'U'}
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900">{participant.username || 'Anonymous'}</div>
-                        <div className="text-sm text-gray-500">
-                          Completed on {participant.completedAt ? new Date(participant.completedAt).toLocaleDateString() : '--'}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold ${
-                        participant.score >= 90 ? 'text-green-600' :
-                        participant.score >= 70 ? 'text-yellow-600' :
+              {selectedQuiz.recent_attempts && selectedQuiz.recent_attempts.length > 0 && (
+              <div className="mt-8">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Recent Plays</h4>
+                <div className="space-y-3">
+                  {selectedQuiz.recent_attempts.map((attempt, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200"
+                    >
+                      <span className="font-medium text-gray-700 truncate">
+                        {attempt.username || 'Anonymous'}
+                      </span>
+                      <span className={`font-semibold ${
+                        attempt.score >= 80 ? 'text-green-600' :
+                        attempt.score >= 50 ? 'text-yellow-600' :
                         'text-red-600'
                       }`}>
-                        {participant.score || 0}%
-                      </div>
-                      <div className="text-sm text-gray-500">Time: {participant.timeSpent || '--:--'}</div>
+                        {attempt.score}%
+                      </span>
                     </div>
-                  </div>
-                ))}
-                {(!selectedQuiz.participants || selectedQuiz.participants.length === 0) && (
-                  <div className="text-center py-4 text-gray-500">
-                    No participants yet
-                  </div>
-                )}
+                  ))}
+                </div>
               </div>
+            )}
 
               <div className="mt-6 flex items-center justify-between pt-4 border-t">
                 <div className="flex items-center space-x-4">

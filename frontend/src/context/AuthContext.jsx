@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { BACKEND_ROUTE } from './api';
 
 const AuthContext = createContext();
 
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   // Set axios defaults ONCE
   useEffect(() => {
-    axios.defaults.baseURL = 'http://localhost:5000';
+    axios.defaults.baseURL = `${BACKEND_ROUTE}`;
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {

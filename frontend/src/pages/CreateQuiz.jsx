@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BookOpen, Zap, AlertCircle, Loader2, FileText, HelpCircle, ExternalLink, Share2, Eye, Lock } from 'lucide-react';
+import { BACKEND_ROUTE } from '../context/api';
 
 const GenerateQuiz = ({ onQuizGenerated = () => {}, quizLink }) => {
   const [text, setText] = useState('');
@@ -28,7 +29,7 @@ const GenerateQuiz = ({ onQuizGenerated = () => {}, quizLink }) => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch('http://localhost:5000/generate-quiz', {
+      const response = await fetch(`${BACKEND_ROUTE}/generate-quiz`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,7 +51,7 @@ const GenerateQuiz = ({ onQuizGenerated = () => {}, quizLink }) => {
       const data = await response.json();
       onQuizGenerated(data.quiz_id);
       
-      const newQuizLink = `http://localhost:3000/quiz/${data.quiz_id}`;
+      const newQuizLink = `${FRONTEND_ROUTE}/quiz/${data.quiz_id}`;
       setGeneratedQuizLink(newQuizLink);
       
     } catch (err) {
