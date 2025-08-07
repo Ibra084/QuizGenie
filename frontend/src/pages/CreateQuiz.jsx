@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BookOpen, Zap, AlertCircle, Loader2, FileText, HelpCircle, ExternalLink, Share2, Eye, Lock } from 'lucide-react';
-import { BACKEND_ROUTE } from '../context/api';
+import { BACKEND_ROUTE, FRONTEND_ROUTE } from '../context/api';
 
 const GenerateQuiz = ({ onQuizGenerated = () => {}, quizLink }) => {
   const [text, setText] = useState('');
