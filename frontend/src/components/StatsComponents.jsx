@@ -15,9 +15,10 @@ export const StatsComponent = () => {
         const fetchStats = async () => {
           try {
             const token = localStorage.getItem('token');
-            const response = await axios.get('/api/stats', {
-              headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-            });
+            const response = await axios.get(
+                `${BACKEND_ROUTE}/api/stats`,
+                token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+              );
             
             if (response.data.success) {
               animateNumbers(response.data.stats);
