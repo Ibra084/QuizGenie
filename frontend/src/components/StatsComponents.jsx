@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { BACKEND_ROUTE } from '../context/api';
+
 export const StatsComponent = () => {
     const [displayStats, setDisplayStats] = useState([
         { number: "0", label: "Active Learners" },

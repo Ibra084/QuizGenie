@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, Star } from 'lucide-react';
+import { ArrowRight, BookOpen } from 'lucide-react';
 
 interface Quiz {
   id: string;
