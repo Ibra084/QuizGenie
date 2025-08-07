@@ -17,6 +17,7 @@ import {
   Menu,
   X
 } from 'lucide-react';
+import { StatsComponent } from "../components/StatsComponents"
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -91,12 +92,6 @@ const LandingPage = () => {
     }
   ];
 
-  const stats = [
-    { number: "X", label: "Active Learners" },
-    { number: "X", label: "Quizzes Created" },
-    { number: "X+", label: "Questions Answered" },
-    { number: "X", label: "Success Rate" }
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -199,14 +194,7 @@ const LandingPage = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8">
-                {stats.map((stat, index) => (
-                  <div key={index} className="text-center">
-                    <div className="text-2xl font-bold text-gray-900">{stat.number}</div>
-                    <div className="text-sm text-gray-600">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+              <StatsComponent />
             </div>
 
             {/* Hero Image/Animation */}

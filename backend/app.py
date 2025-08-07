@@ -28,7 +28,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
-    "http://192.168.0.174:3000"
+    "http://192.168.0.174:3000",
+    "quizgenie.onrender.com"
 ]}}, supports_credentials=True)
 
 # Initialize database
@@ -1448,6 +1449,49 @@ def quiz_analytics(current_user, quiz_id):
         'leaderboard': leaderboard
     })
 
+@app.route('/api/stats', methods=['GET'])
+def get_global_stats():
+    """Get global statistics for the platform"""
+    try:
+        # 1. Get total active learners (unique users who have taken quizzes)
+        active_learners = db.session.query(
+            func.count(distinct(QuizAttempt.user_id))
+        ).scalar() or 0
+        
+        # 2. Get total quizzes created
+        quizzes_created = Quiz.query.count()
+        
+        # 3. Get total questions answered (sum of all questions in all attempts)
+        total_questions_answered = db.session.query(
+            func.sum(QuizAttempt.total_questions)
+        ).scalar() or 0
+        
+        # 4. Calculate average success rate across all attempts
+        avg_success_rate = db.session.query(
+            func.avg(QuizAttempt.score)
+        ).scalar() or 0
+        
+        return jsonify({
+            'success': True,
+            'stats': [
+                { 'number': str(active_learners), 'label': "Active Learners" },
+                { 'number': str(quizzes_created), 'label': "Quizzes Created" },
+                { 'number': str(total_questions_answered), 'label': "Questions Answered" },
+                { 'number': f"{round(avg_success_rate, 1)}%", 'label': "Success Rate" }
+            ]
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'stats': [
+                { 'number': "0", 'label': "Active Learners" },
+                { 'number': "0", 'label': "Quizzes Created" },
+                { 'number': "0", 'label': "Questions Answered" },
+                { 'number': "0%", 'label': "Success Rate" }
+            ]
+        }), 500
 
 
 if __name__ == '__main__':
