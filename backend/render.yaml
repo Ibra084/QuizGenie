@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: quizgenie-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: flask run -p 5000
+    build:
+      environment:
+        pythonVersion: 3.12.2
