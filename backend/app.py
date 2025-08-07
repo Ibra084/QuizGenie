@@ -124,6 +124,11 @@ class QuizAttempt(db.Model):
         return f'<QuizAttempt {self.id} - User {self.user_id} - Quiz {self.quiz_id}>'
 
 
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+
 @app.route('/verify-token', methods=['GET'])
 def verify_token():
     auth_header = request.headers.get('Authorization')
@@ -1500,5 +1505,5 @@ def health_check():
 
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
-    app.run(debug=False, host="0.0.0.0", port="10000")
+        port = int(os.environ.get('PORT', 5000))
+        app.run(debug=False, host="0.0.0.0", port=port)
