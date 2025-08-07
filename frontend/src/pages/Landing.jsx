@@ -187,10 +187,10 @@ const LandingPage = () => {
                   <span>Start Learning Now</span>
                 </button>
                 </a>
-                <button className="flex items-center justify-center space-x-2 px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all">
+                {/* <button className="flex items-center justify-center space-x-2 px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-lg hover:border-blue-500 hover:text-blue-600 transition-all">
                   <BookOpen className="w-5 h-5" />
                   <span>View Demo</span>
-                </button>
+                </button> */}
               </div>
 
               {/* Stats */}
@@ -369,78 +369,45 @@ const LandingPage = () => {
               Ready to Transform Your Learning?
             </h2>
             <p className="text-xl text-blue-100 leading-relaxed">
-              Join over 50,000 learners who are already mastering new skills with QuizGenie. 
-              Start your journey today with our free plan.
+              Join learners who are already mastering new skills with QuizGenie. 
+              Start your journey today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button className="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-all shadow-sm">
                 Get Started Free
               </button>
-              <button className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all">
-                View Pricing
-              </button>
+              
             </div>
-            <div className="text-blue-100 text-sm">
-              ✓ No credit card required  ✓ Free forever plan  ✓ Cancel anytime
-            </div>
+          
           </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl font-bold">QuizGenie</span>
-              </div>
-              <p className="text-gray-400">
-                Empowering learners worldwide with interactive quizzes and personalized learning experiences.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Product</h3>
-              <div className="space-y-2 text-gray-400">
-                <a href="#" className="block hover:text-white transition-colors">Features</a>
-                <a href="#" className="block hover:text-white transition-colors">Pricing</a>
-                <a href="#" className="block hover:text-white transition-colors">API</a>
-                <a href="#" className="block hover:text-white transition-colors">Integrations</a>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Company</h3>
-              <div className="space-y-2 text-gray-400">
-                <a href="#" className="block hover:text-white transition-colors">About</a>
-                <a href="#" className="block hover:text-white transition-colors">Blog</a>
-                <a href="#" className="block hover:text-white transition-colors">Careers</a>
-                <a href="#" className="block hover:text-white transition-colors">Contact</a>
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <div className="space-y-2 text-gray-400">
-                <a href="#" className="block hover:text-white transition-colors">Help Center</a>
-                <a href="#" className="block hover:text-white transition-colors">Community</a>
-                <a href="#" className="block hover:text-white transition-colors">Privacy</a>
-                <a href="#" className="block hover:text-white transition-colors">Terms</a>
-              </div>
-            </div>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 place-items-center md:place-items-start">
+      <div className="space-y-4 text-center md:text-left col-span-full">
+        <div className="flex items-center justify-center md:justify-start space-x-3">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-white" />
           </div>
-          
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-            <p className="text-gray-400">
-              2025 QuizGenie. Created by Ibrahim Rahman
-            </p>
-          </div>
+          <span className="text-xl font-bold">QuizGenie</span>
         </div>
-      </footer>
+        <p className="text-gray-400 max-w-md mx-auto md:mx-0">
+          Empowering learners worldwide with interactive quizzes and personalized learning experiences.
+        </p>
+      </div>
+    </div>
+
+    <div className="border-t border-gray-800 mt-12 pt-8 text-center">
+      <p className="text-gray-400">
+        © 2025 QuizGenie. Created by Ibrahim Rahman
+      </p>
+    </div>
+  </div>
+</footer>
+
     </div>
   );
 };

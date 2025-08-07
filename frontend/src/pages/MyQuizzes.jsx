@@ -1,9 +1,13 @@
-import { Search, Star, Clock, BookOpen, Filter, ChevronDown, Loader2, AlertCircle, User, Trophy, Calendar, Edit, Trash2, Eye, BarChart3, Plus, Users, X, Play } from 'lucide-react';
+import { Search, Star, Clock, LogOut, BookOpen, Filter, ChevronDown, Loader2, AlertCircle, User, Trophy, Calendar, Edit, Trash2, Eye, BarChart3, Plus, Users, X, Play } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const MyQuizzes = () => {
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
   const [selectedTags, setSelectedTags] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('created');
@@ -275,11 +279,27 @@ const filteredQuizzes = currentQuizzes
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* Hero Section with Profile */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex flex-col items-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">{userData.user.username || 'Loading...'}</h1>
+        <div className="max-w-7xl mx-auto relative">
+          
+          {/* ✅ Logout Button - Top Left */}
+          <div className="absolute top-4 left-4">
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+
+        <div className="flex flex-col items-center mb-8">
+            <div className="flex items-center space-x-4">
+              
+              <h1 className="text-4xl font-bold mb-2">{userData.user.username || 'Loading...'}</h1>
+            </div>
+
             <p className="text-xl mb-2">{userData.user.email || ''}</p>
             <div className="flex items-center space-x-4 text-sm opacity-90">
               <span>Joined {userData.user.joinDate ? new Date(userData.user.joinDate).toLocaleDateString() : ''}</span>

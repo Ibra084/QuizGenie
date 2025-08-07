@@ -12,6 +12,7 @@ import QuizNetwork from './pages/QuizNetwork';
 import MyQuizzes from './pages/MyQuizzes';
 import EditQuiz from './pages/EditQuiz';
 import QuizAnalytics from './pages/Analytics';
+import NotFoundPage from './pages/NotFound';
 
 function App() {
   return (
@@ -20,9 +21,12 @@ function App() {
         <div className="app">
           <Navbar />
           <Routes>
+            <Route path="/*" element={<NotFoundPage />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            
+            
             
             {/* Protected routes */}
             <Route element={<PrivateRoute />}>

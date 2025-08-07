@@ -1,8 +1,15 @@
 import { Search, Plus, Users, BookOpen, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <>
@@ -21,6 +28,7 @@ const Navbar = () => {
             </a>
 
             {/* Desktop Navigation */}
+
             <div className="hidden md:flex items-center space-x-8">
               <a 
                 href="/discover" 
@@ -45,20 +53,21 @@ const Navbar = () => {
                 My Quizzes
               </a>
             </div>
+            
 
             {/* Create Quiz Button & Mobile Menu */}
             <div className="flex items-center space-x-4">
-              <a href="/create-quiz">
-                <button 
-                  onClick={() => console.log('Navigate to create quiz')}
-                  className="flex items-center space-x-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Create Quiz</span>
-                </button>
-              </a>
+            <a href="/create-quiz">
+              <button 
+                onClick={() => console.log('Navigate to create quiz')}
+                className="flex items-center space-x-2 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">Create Quiz</span>
+              </button>
+            </a>
 
-              {/* Mobile menu button */}
+
               <button 
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="md:hidden p-2 text-gray-700 hover:text-blue-600 transition-colors duration-200"
@@ -98,6 +107,15 @@ const Navbar = () => {
                   <BookOpen className="w-4 h-4" />
                   <span>My Quizzes</span>
                 </a>
+                <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center space-x-3 text-red-600 hover:text-white hover:bg-red-600 font-medium transition-colors px-4 py-2 rounded-md"
+              >
+                <span>Logout</span>
+              </button>
               </div>
             </div>
           )}

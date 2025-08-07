@@ -11,7 +11,7 @@ import jwt
 from functools import wraps
 import json
 from flask_migrate import Migrate
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, distinct
 
 
 load_dotenv(dotenv_path="./.env")
