@@ -125,31 +125,34 @@ class QuizAttempt(db.Model):
 
 
 # ---------------------------------------------------------------------------
-# 1) Runs ONCE when each Gunicorn worker starts (before it serves requests)
+# Database Initialization
 # ---------------------------------------------------------------------------
-@app.before_serving               # <— replaces @app.before_first_request
-def initialise():
-    """Create tables & seed initial data right before the worker begins."""
-    with app.app_context():       # safe even inside the hook
-        db.create_all()           # create tables if they don't exist
-        seed_database()           # any custom seeding logic
+def initialize_database():
+    """Create tables & seed initial data when app starts"""
+    with app.app_context():
+        db.create_all()
+        # Only seed if database is empty
+        if not User.query.first():
+            admin = User(
+                username="admin", 
+                email="admin@example.com",
+                password=generate_password_hash("adminpassword")
+            )
+            db.session.add(admin)
+            db.session.commit()
 
-def seed_database():
-    """Example seeding function — tweak to your needs."""
-    from models import User       # import inside function to avoid circular deps
+# Initialize immediately (for production)
+initialize_database()
 
-    if not User.query.first():    # only seed if DB is empty
-        admin = User(username="admin", email="admin@example.com")
-        db.session.add(admin)
-        db.session.commit()
+# OR use before_first_request for lazy initialization (development)
+# @app.before_first_request
+# def on_first_request():
+#     initialize_database()
 
-# ---------------------------------------------------------------------------
-# 2) (Optional) Runs when the worker is shutting down
-# ---------------------------------------------------------------------------
-@app.after_serving
-def shutdown():
-    """Clean-up tasks after the worker stops accepting requests."""
-    db.session.remove()           # close DB session, release connections
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    """Cleanup database session at app context teardown"""
+    db.session.remove()
 
 
 @app.route('/verify-token', methods=['GET'])
