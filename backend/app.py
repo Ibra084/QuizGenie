@@ -12,6 +12,7 @@ from functools import wraps
 import json
 from flask_migrate import Migrate
 from sqlalchemy import func, desc, distinct
+import httpx
 
 
 load_dotenv(dotenv_path="./.env")
@@ -217,6 +218,7 @@ def token_required(f):
     return decorated
 # Initialize OpenAI
 client = OpenAI()
+
 @app.route('/generate-quiz', methods=['POST'])
 @token_required
 def generate_quiz(current_user):
