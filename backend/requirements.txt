@@ -36,7 +36,6 @@ black==23.11.0
 
 # Production requirements
 gunicorn==21.2.0
-gevent==23.9.1
 
 # Email (if needed)
 Flask-Mail==0.9.1
