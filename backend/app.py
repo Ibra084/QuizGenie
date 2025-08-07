@@ -1492,6 +1492,10 @@ def get_global_stats():
                 { 'number': "0%", 'label': "Success Rate" }
             ]
         }), 500
+    
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'ok'}), 200
 
 
 if __name__ == '__main__':
