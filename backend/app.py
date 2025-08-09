@@ -30,7 +30,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
     "http://192.168.0.174:3000",
-    "https://quizgenie-8be1.onrender.com"
+    "https://quizgenie-8be1.onrender.com",
+    "https://quizgenie-eta.vercel.app/"
 ]}}, supports_credentials=True)
 
 # Initialize database
